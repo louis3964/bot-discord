@@ -1,8 +1,13 @@
-require('dotenv').config(); // ✅ AJOUT
+const TOKEN = process.env.TOKEN;
+
+if (!TOKEN) {
+  console.log("❌ TOKEN manquant");
+  process.exit(1);
+}
 
 const { 
   Client, 
-  GatewayIntentBits, 
+  GatewayIntentBits,
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
@@ -195,4 +200,4 @@ client.on('interactionCreate', async interaction => {
 });
 
 // 🔥 AJOUT FINAL OBLIGATOIRE
-client.login(process.env.TOKEN);
+client.login(TOKEN);
