@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const TOKEN = process.env.TOKEN;
 
 if (!TOKEN) {
@@ -21,24 +23,24 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.DirectMessages
-  ]
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildMembers // ✅ ajouté (utile pour DM + stabilité)
+  ],
+  partials: ["CHANNEL"] // ✅ IMPORTANT pour les DM (évite bugs interaction/DM)
 });
 
-// ✅ Bot prêt (CORRIGÉ)
-client.once('ready', () => { // ✅ CORRECTION
+// ✅ Bot prêt
+client.once('ready', () => {
   console.log('👮 Direction centrale connectée');
 });
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
-  // 🔹 PING
   if (message.content === '!ping') {
     return message.reply('🏓 Pong !');
   }
 
-  // 🔹 REGLEMENT
   if (message.content === '!reglement') {
     return message.channel.send(
       "👮 **Direction centrale de la police nationale**\n\n" +
@@ -48,7 +50,6 @@ client.on('messageCreate', async (message) => {
     );
   }
 
-  // 🔥 TENUES
   if (message.content === '!tenues') {
     const embeds = [
       new EmbedBuilder()
@@ -67,7 +68,6 @@ client.on('messageCreate', async (message) => {
     return message.channel.send({ embeds });
   }
 
-  // 🔰 HIERARCHIE
   if (message.content.toLowerCase().includes('!hierarchie')) {
     const embed = new EmbedBuilder()
       .setTitle('👮 Hiérarchie de la Police Nationale')
@@ -82,7 +82,6 @@ client.on('messageCreate', async (message) => {
     return message.channel.send({ embeds: [embed] });
   }
 
-  // 📩 POSTULER
   if (message.content === '!postuler') {
     try {
       const dm = await message.author.createDM();
@@ -137,8 +136,6 @@ client.on('messageCreate', async (message) => {
       const salon = message.guild.channels.cache.get(SALON_CANDIDATURE);
       if (!salon) return console.log("❌ Salon introuvable");
 
-      console.log("📩 Envoi candidature...");
-
       const embed = new EmbedBuilder()
         .setTitle('📩 Nouvelle candidature')
         .setDescription(`Candidat : ${message.author.tag}`)
@@ -180,7 +177,6 @@ client.on('messageCreate', async (message) => {
   }
 });
 
-// 🔘 BOUTONS
 client.on('interactionCreate', async interaction => {
   if (!interaction.isButton()) return;
 
@@ -199,5 +195,4 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
-// 🔥 AJOUT FINAL OBLIGATOIRE
-client.login(TOKEN);
+client.login(TOKEN); 
